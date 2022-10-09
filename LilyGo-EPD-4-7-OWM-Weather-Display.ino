@@ -75,6 +75,7 @@ long Delta           = 30; // ESP32 rtc speed compensation, prevents display at 
 #include "sunrise.h"
 #include "sunset.h"
 #include "uvi.h"
+#include "raindrops.h"
 
 GFXfont  currentFont;
 uint8_t *framebuffer;
@@ -461,7 +462,8 @@ void DisplayVisiCCoverUVISection(int x, int y) {
   Serial.print("=========================="); Serial.println(WxConditions[0].Visibility);
   Visibility(x + 5, y, String(WxConditions[0].Visibility/1000) + "km");
   CloudCover(x + 155, y, WxConditions[0].Cloudcover);
-  Display_UVIndexLevel(x + 265, y, WxConditions[0].UVI);
+  Display_DewPoint(x + 265, y, WxConditions[0].DewPoint);
+  Display_UVIndexLevel(x + 390, y, WxConditions[0].UVI);
 }
 
 void Display_UVIndexLevel(int x, int y, float UVI) {
@@ -473,6 +475,11 @@ void Display_UVIndexLevel(int x, int y, float UVI) {
   if (UVI >= 11)             Level = " (extremalne)";
   drawString(x + 20, y - 5, String(UVI, (UVI < 0 ? 1 : 0)) + Level, LEFT);
   DrawUVI(x - 10, y - 5);
+}
+
+void Display_DewPoint(int x, int y, float DP) {
+  drawString(x + 20, y, String(DP, 1) + "°C", LEFT);
+  DrawDewPoint(x - 10, y - 18);
 }
 
 void DisplayForecastWeather(int x, int y, int index, int fwidth) {
@@ -943,6 +950,13 @@ void DrawUVI(int x, int y) {
     .x = x, .y = y, .width  = uvi_width, .height = uvi_height
   };
   epd_draw_grayscale_image(area, (uint8_t *) uvi_data);
+}
+
+void DrawDewPoint(int x, int y) {
+  Rect_t area = {
+    .x = x, .y = y, .width  = raindrops_width, .height = raindrops_height
+  };
+  epd_draw_grayscale_image(area, (uint8_t *) raindrops_data);
 }
 
 /* (C) D L BIRD
