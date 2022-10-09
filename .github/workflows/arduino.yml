@@ -1,0 +1,44 @@
+name: Arduino workflow
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron:  '0 0 * * *'
+
+jobs:
+  build:
+    name: Build job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v1
+      - name: Install Python 3 serial port support
+        run: sudo apt install python3-serial
+      - name: Record Arduino version
+        run: arduino-cli version
+      - name: Initialize Arduino configuration
+        run: arduino-cli --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json config init
+      - name: Perform Arduino update
+        run: arduino-cli update
+      - name: Perform Arduino upgrade
+        run: arduino-cli upgrade
+      - name: Record Arduino outdated
+        run: arduino-cli outdated
+      - name: Install ESP32 core
+        run: arduino-cli core install esp32:esp32
+      - name: Record ESP32 core version
+        run: arduino-cli core list
+      - name: Install LilyGo-EPD47 support
+        run: |
+          LILYGO_EPD47_VERSION=0.3.0
+          curl -fsSL -o "LilyGo-EPD47-v${LILYGO_EPD47_VERSION}.zip" "https://github.com/Xinyuan-LilyGO/LilyGo-EPD47/archive/refs/tags/v${LILYGO_EPD47_VERSION}.zip"
+          env ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL=true arduino-cli lib install --zip-path "LilyGo-EPD47-v${LILYGO_EPD47_VERSION}.zip"
+      - name: Install ArduinoJson library
+        run: arduino-cli lib install ArduinoJson
+      - name: Record libraries versions
+        run: arduino-cli lib list
+      - name: Compile LilyGo-EPD-4-7-OWM-Weather-Display
+        run: arduino-cli compile --fqbn esp32:esp32:esp32:PSRAM=enabled .
