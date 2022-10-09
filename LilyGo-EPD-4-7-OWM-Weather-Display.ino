@@ -1,3 +1,7 @@
+#ifndef BOARD_HAS_PSRAM
+#error "Please enable PSRAM !!!"
+#endif
+
 #include <Arduino.h>            // In-built
 #include <esp_task_wdt.h>       // In-built
 #include "freertos/FreeRTOS.h"  // In-built
