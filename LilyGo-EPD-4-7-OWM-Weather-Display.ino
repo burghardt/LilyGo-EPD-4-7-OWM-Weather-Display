@@ -18,7 +18,7 @@
 
 #include "owm_credentials.h"
 #include "forecast_record.h"
-#include "lang.h"
+#include "lang_pl.h"
 
 #define SCREEN_WIDTH   EPD_WIDTH
 #define SCREEN_HEIGHT  EPD_HEIGHT
@@ -179,6 +179,19 @@ void Convert_Readings_to_Imperial() { // Only the first 3-hours are used
   WxForecast[0].Snowfall   = mm_to_inches(WxForecast[0].Snowfall);
 }
 
+String ReplacePolishCharWithLatin(String s) {
+  s.replace("ą", "a");
+  s.replace("ć", "c");
+  s.replace("ę", "e");
+  s.replace("ł", "l");
+  s.replace("ń", "n");
+  s.replace("ó", "o");
+  s.replace("ś", "s");
+  s.replace("ź", "z");
+  s.replace("ż", "z");
+  return s;
+}
+
 bool DecodeWeather(WiFiClient& json, String Type) {
   Serial.print(F("\nCreating object...and "));
   DynamicJsonDocument doc(64 * 1024);                      // allocate the JsonDocument
@@ -210,7 +223,7 @@ bool DecodeWeather(WiFiClient& json, String Type) {
     WxConditions[0].Windspeed   = current["wind_speed"];                           Serial.println("WSpd: " + String(WxConditions[0].Windspeed));
     WxConditions[0].Winddir     = current["wind_deg"];                             Serial.println("WDir: " + String(WxConditions[0].Winddir));
     JsonObject current_weather  = current["weather"][0];
-    String Description = current_weather["description"];                           // "scattered clouds"
+    String Description = ReplacePolishCharWithLatin(current_weather["description"]); // "scattered clouds"
     String Icon        = current_weather["icon"];                                  // "01n"
     WxConditions[0].Forecast0   = Description;                                     Serial.println("Fore: " + String(WxConditions[0].Forecast0));
     WxConditions[0].Icon        = Icon;                                            Serial.println("Icon: " + String(WxConditions[0].Icon));
@@ -410,15 +423,15 @@ String WindDegToOrdinalDirection(float winddirection) {
 
 void DisplayTempHumiPressSection(int x, int y) {
   setFont(OpenSans18B);
-  drawString(x - 30, y, String(WxConditions[0].Temperature, 1) + "°   " + String(WxConditions[0].Humidity, 0) + "%", LEFT);
+  drawString(x - 30, y, String(WxConditions[0].Temperature, 1) + "°C   " + String(WxConditions[0].Humidity, 0) + "%", LEFT);
   setFont(OpenSans12B);
   DrawPressureAndTrend(x + 195, y + 15, WxConditions[0].Pressure, WxConditions[0].Trend);
   int Yoffset = 42;
   if (WxConditions[0].Windspeed > 0) {
-    drawString(x - 30, y + Yoffset, String(WxConditions[0].FeelsLike, 1) + "° FL", LEFT);   // Show FeelsLike temperature if windspeed > 0
+    drawString(x - 30, y + Yoffset, "Odczuwalna " + String(WxConditions[0].FeelsLike, 1) + "°C", LEFT);   // Show FeelsLike temperature if windspeed > 0
     Yoffset += 30;
   }
-  drawString(x - 30, y + Yoffset, String(WxConditions[0].High, 0) + "° | " + String(WxConditions[0].Low, 0) + "° Hi/Lo", LEFT); // Show forecast high and Low
+  drawString(x - 30, y + Yoffset, "Temp. dob. od " + String(WxConditions[0].Low, 0) + "°C do " + String(WxConditions[0].High, 0) + "°C", LEFT); // Show forecast high and Low
 }
 
 void DisplayForecastTextSection(int x, int y) {
@@ -446,18 +459,18 @@ void DisplayForecastTextSection(int x, int y) {
 void DisplayVisiCCoverUVISection(int x, int y) {
   setFont(OpenSans12B);
   Serial.print("=========================="); Serial.println(WxConditions[0].Visibility);
-  Visibility(x + 5, y, String(WxConditions[0].Visibility) + "M");
+  Visibility(x + 5, y, String(WxConditions[0].Visibility/1000) + "km");
   CloudCover(x + 155, y, WxConditions[0].Cloudcover);
   Display_UVIndexLevel(x + 265, y, WxConditions[0].UVI);
 }
 
 void Display_UVIndexLevel(int x, int y, float UVI) {
   String Level = "";
-  if (UVI <= 2)              Level = " (L)";
-  if (UVI >= 3 && UVI <= 5)  Level = " (M)";
-  if (UVI >= 6 && UVI <= 7)  Level = " (H)";
-  if (UVI >= 8 && UVI <= 10) Level = " (VH)";
-  if (UVI >= 11)             Level = " (EX)";
+  if (UVI <= 2)              Level = " (niskie)";
+  if (UVI >= 3 && UVI <= 5)  Level = " (srednie)";
+  if (UVI >= 6 && UVI <= 7)  Level = " (wysokie)";
+  if (UVI >= 8 && UVI <= 10) Level = " (bardzo wysokie)";
+  if (UVI >= 11)             Level = " (extremalne)";
   drawString(x + 20, y - 5, String(UVI, (UVI < 0 ? 1 : 0)) + Level, LEFT);
   DrawUVI(x - 10, y - 5);
 }
@@ -1001,9 +1014,9 @@ void DrawGraph(int x_pos, int y_pos, int gwidth, int gheight, float Y1Min, float
       }
     }
   }
-  for (int i = 0; i < 3; i++) {
-    drawString(20 + x_pos + gwidth / 3 * i, y_pos + gheight + 10, String(i) + "d", LEFT);
-    if (i < 2) drawFastVLine(x_pos + gwidth / 3 * i + gwidth / 3, y_pos, gheight, LightGrey);
+  for (int i = 0; i < 5; i++) {
+    drawString(20 + x_pos + gwidth / 5 * i, y_pos + gheight + 10, "-" + String(i+1), LEFT);
+    if (i < 2) drawFastVLine(x_pos + gwidth / 5 * i + gwidth / 5, y_pos, gheight, LightGrey);
   }
 }
 
