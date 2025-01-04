@@ -33,7 +33,7 @@ jobs:
       - name: Record Arduino outdated
         run: arduino-cli outdated
       - name: Install ESP32 core
-        run: arduino-cli core install esp32:esp32
+        run: arduino-cli core install esp32:esp32@2.0.17
       - name: Record ESP32 core version
         run: arduino-cli core list
       - name: Install LilyGo-EPD47 support
