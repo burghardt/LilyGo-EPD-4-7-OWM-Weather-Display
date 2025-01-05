@@ -1025,7 +1025,7 @@ void DrawGraph(int x_pos, int y_pos, int gwidth, int gheight, float Y1Min, float
     }
   }
   for (int i = 0; i < 5; i++) {
-    drawString(20 + x_pos + gwidth / 5 * i, y_pos + gheight + 10, "-" + String(i+1), LEFT);
+    drawString(20 + x_pos + gwidth / 5 * i, y_pos + gheight + 10, "+" + String(i+1), LEFT);
     if (i < 2) drawFastVLine(x_pos + gwidth / 5 * i + gwidth / 5, y_pos, gheight, LightGrey);
   }
 }
