@@ -19,7 +19,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
       - name: Install Arduino CLI
-        uses: arduino/setup-arduino-cli@v1
+        uses: arduino/setup-arduino-cli@v2
       - name: Install Python 3 serial port support
         run: sudo apt install python3-serial
       - name: Record Arduino version
